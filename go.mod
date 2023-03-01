@@ -2,6 +2,7 @@ module github.com/22Fariz22/loyal
 
 go 1.18
 
+
 require (
 	github.com/22Fariz22/gophermart v0.0.0-20230225211656-d9f2b5b174f9
 	github.com/Masterminds/squirrel v1.5.3
@@ -12,9 +13,7 @@ require (
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/rs/zerolog v1.29.0
 	github.com/theplant/luhn v0.0.0-20170224032821-81a1a381387a
-)
 
-require (
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
