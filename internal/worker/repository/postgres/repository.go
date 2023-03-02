@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/22Fariz22/loyal/internal/config"
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/pkg/logger"
@@ -13,7 +12,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"reflect"
 	"strconv"
 	"time"
 )
@@ -27,8 +25,6 @@ func NewWorkerRepository(db *postgres.Postgres) *WorkerRepository {
 }
 
 func (w *WorkerRepository) CheckNewOrders(l logger.Interface) ([]*entity.Order, error) {
-	log.Println("worker-repo-CheckNewOrders()")
-
 	ctx := context.Background()
 	rows, err := w.Pool.Query(ctx, `SELECT user_id,number,order_status FROM orders
 									WHERE order_status IN( 'NEW','PROCESSING')`)
@@ -46,19 +42,12 @@ func (w *WorkerRepository) CheckNewOrders(l logger.Interface) ([]*entity.Order, 
 			l.Error("err rows.Scan(): ", err)
 			return nil, err
 		}
-		log.Println("worker-repo-CheckNewOrders()-rows.Next()-order: ", order)
 
 		out = append(out, order)
 
 	}
-	log.Println("worker-repo-CheckNewOrders()-rows.Next()-out: ", out)
 	return out, nil
 }
-
-type arrRespAccr []*entity.History // структура ответа от accrual system
-type respAccr *entity.History
-
-//status 200->PROCESSED,  204->INVALID,  401,  429, 500
 
 // структура json ответа от accrual sysytem
 type ResAccrualSystem struct {
@@ -69,17 +58,12 @@ type ResAccrualSystem struct {
 
 //SendToAccrualBox отправляем запрос accrual system и возвращаем ответ от него
 func (w *WorkerRepository) SendToAccrualBox(l logger.Interface, cfg *config.Config, orders []*entity.Order) ([]*entity.History, error) {
-	log.Println("worker-repo-SendToAccrualBox()")
-	log.Println("worker-repo-SendToAccrualBox()-[]orders:", &orders)
-
-	//структура json ответа от accrual sysytem
 	var resAccrSys ResAccrualSystem
 
 	// считываем из env переменную ACCRUAL_SYSTEM_ADDRESS
 	accrualSystemAddress := cfg.AccrualSystemAddress
 
 	reqURL, err := url.Parse(accrualSystemAddress)
-	fmt.Println("url.Parse")
 	if err != nil {
 		l.Error("incorrect ACCRUAL_SYSTEM_ADDRESS:", err)
 		return nil, err
@@ -87,8 +71,6 @@ func (w *WorkerRepository) SendToAccrualBox(l logger.Interface, cfg *config.Conf
 
 	// проходимся по списку ордеров и обращаемся к accrual system
 	for _, v := range orders {
-		log.Println("worker-repo-SendToAccrualBox()-v: ", v)
-		log.Println("worker-repo-SendToAccrualBox()-refl(v): ", reflect.TypeOf(v))
 		uID, err := strconv.Atoi(v.UserID)
 		if err != nil {
 			l.Error("worker-repo-SendToAccrualBox()-atoi: ", err)
@@ -96,28 +78,21 @@ func (w *WorkerRepository) SendToAccrualBox(l logger.Interface, cfg *config.Conf
 		}
 
 		reqURL.Path = path.Join("/api/orders/", v.Number)
-		fmt.Println("reqURL.String()", reqURL.String())
 
 		r, err := http.Get(reqURL.String())
-		fmt.Println("http.Get")
 		if err != nil {
 			l.Error("can't do request: ", err)
 			return nil, err //выходим из цикла, если не получился запрос к accrual system
 		}
 
 		body, err := io.ReadAll(r.Body)
-		fmt.Println("io.ReadAll(r.Body)")
 		defer r.Body.Close()
 		if err != nil {
 			l.Error("Can't read response body: ", err)
 			continue //переходим к следущей итерации
 		}
 
-		fmt.Println("body from response accrual system:: ", string(body))
-
-		// if status == 204: do update set order_status = INVALID, history_status = INVALID
 		if r.StatusCode == 204 {
-			// do update in data in tables orders and history
 			if err := update(w, l, ResAccrualSystem{
 				Order:   v.Number,
 				Status:  "INVALID",
@@ -127,15 +102,12 @@ func (w *WorkerRepository) SendToAccrualBox(l logger.Interface, cfg *config.Conf
 			}
 		}
 
-		// if status == 200: делаем update in db to PROCESSED
 		if r.StatusCode == 200 {
-			// do  unmarshall
 			err = json.Unmarshal(body, &resAccrSys)
 			if err != nil {
 				l.Error("Unmarshal error: ", err)
 			}
 
-			//do update
 			update(w, l, resAccrSys, uID)
 		}
 
@@ -158,9 +130,6 @@ func (w *WorkerRepository) SendToAccrualBox(l logger.Interface, cfg *config.Conf
 }
 
 func update(w *WorkerRepository, l logger.Interface, resAcc ResAccrualSystem, uID int) error {
-	log.Println("worker-repo-updateWithStatus()")
-	log.Println("worker-repo-updateWithStatus()-resAcc: ", resAcc)
-
 	ctx := context.Background()
 
 	//UPDATE в таблице History и Orders
@@ -171,9 +140,6 @@ func update(w *WorkerRepository, l logger.Interface, resAcc ResAccrualSystem, uI
 		return err
 	}
 	defer tx.Rollback(ctx)
-
-	log.Println("worker-repo-updateWithStatus()-UPDATE  resAcc: ", resAcc)
-	log.Println("worker-repo-updateWithStatus()-UPDATE  int(resAcc.Accrual*100): ", int(resAcc.Accrual*100))
 
 	// добавлякем в таблицу orders
 	_, err = tx.Exec(ctx, `UPDATE orders SET order_status =  $1, accrual = $2
@@ -196,22 +162,6 @@ func update(w *WorkerRepository, l logger.Interface, resAcc ResAccrualSystem, uI
 		l.Error("worker-repo-updateWithStatus() -tx.commit err: ", err)
 		return err
 	}
-	log.Println("worker-repo-updateWithStatus().-end tx commit.")
 
 	return nil
 }
-
-//func (w *WorkerRepository) SendToWaitListChannels() {
-//	//TODO implement me
-//	panic("implement me")
-//}
-
-//func checkStatus(w *WorkerRepository, l logger.Interface, resAcc ResAccrualSystem) error {
-//	log.Println("worker-repo-checkStatus()")
-//	err := updateWithStatus(w, l, resAcc)
-//	if err != nil {
-//		l.Error("worker-repo-checkStatus()-updateWithStatus()-err",err)
-//		return err
-//	}
-//	return nil
-//}

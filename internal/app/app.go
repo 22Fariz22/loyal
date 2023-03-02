@@ -41,13 +41,6 @@ type App struct {
 }
 
 func NewApp(cfg *config.Config) *App {
-
-	//log.Println("viper.GetString('a'): ", viper.GetString("a"))
-	//log.Println("viper.GetString('d'): ", viper.GetString("d"))
-	//log.Println("viper.GetString('r'): ", viper.GetString("r"))
-	//
-	//log.Println("cfg DatabaseURI: ", cfg.DatabaseURI)
-
 	// Repository
 	db, err := postgres.New(cfg.DatabaseURI, postgres.MaxPoolSize(2))
 	if err != nil {
@@ -104,7 +97,6 @@ func (a *App) Run() error {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Println("app-a.httpServer:,", a.httpServer)
 
 	go worker.CollectNewOrders(a.workerUC, l, a.cfg) //запуск по тикеру
 
@@ -113,9 +105,6 @@ func (a *App) Run() error {
 			l.Fatal("Failed to listen and serve: %+v", err)
 		}
 	}()
-	//if err := http.ListenAndServe(a.cfg.RunAddress, router); err != http.ErrServerClosed {
-	//	log.Fatalf("HTTP server ListenAndServe Error: %v", err)
-	//}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, os.Interrupt)

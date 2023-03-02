@@ -6,8 +6,6 @@ import (
 	"github.com/22Fariz22/loyal/pkg/logger"
 )
 
-//interface
-
 type UserRepository interface {
 	CreateUser(ctx context.Context, l logger.Interface, user *entity.User) error
 	GetUser(ctx context.Context, l logger.Interface, username, password string) (*entity.User, error)

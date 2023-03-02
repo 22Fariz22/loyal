@@ -6,8 +6,6 @@ import (
 	"github.com/22Fariz22/loyal/pkg/logger"
 )
 
-//interface
-
 type OrderRepository interface {
 	PushOrder(ctx context.Context, l logger.Interface, user *entity.User, eo *entity.Order) error
 	GetOrders(ctx context.Context, l logger.Interface, user *entity.User) ([]*entity.Order, error)

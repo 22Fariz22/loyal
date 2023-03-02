@@ -6,7 +6,6 @@ import (
 	"github.com/22Fariz22/loyal/internal/order"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/22Fariz22/loyal/pkg/postgres"
-	"log"
 	"strconv"
 	"time"
 )
@@ -28,17 +27,9 @@ func NewOrderRepository(db *postgres.Postgres) *OrderRepository {
 	return &OrderRepository{db}
 }
 
-//type existOrder struct {
-//	uID    int    `json:"user_id"`
-//	number string `json:"number"`
-//}
-
 func (o *OrderRepository) PushOrder(ctx context.Context, l logger.Interface, user *entity.User, eo *entity.Order) error {
-	log.Println("order-repo-PushOrder().")
 
 	var existUser int
-
-	log.Println("order-repo-PushOrder()-number:", eo.Number)
 
 	_ = o.Pool.QueryRow(ctx, `SELECT user_id FROM orders where number = $1;`, eo.Number).Scan(&existUser)
 
@@ -48,7 +39,6 @@ func (o *OrderRepository) PushOrder(ctx context.Context, l logger.Interface, use
 		return err
 	}
 
-	log.Println(" existUser == existUserConvToStr", existUser, existUserConvToStr)
 	if existUser == existUserConvToStr {
 		l.Info("Number Has Already Been Uploaded")
 		return order.ErrNumberHasAlreadyBeenUploaded
@@ -64,7 +54,6 @@ func (o *OrderRepository) PushOrder(ctx context.Context, l logger.Interface, use
 		}
 	}
 
-	log.Println("order-repo-PushOrder()- start begin tx.")
 	tx, err := o.Pool.Begin(ctx)
 	if err != nil {
 		l.Error("tx err: ", err)
@@ -88,7 +77,6 @@ func (o *OrderRepository) PushOrder(ctx context.Context, l logger.Interface, use
 		return err
 	}
 
-	log.Println("order-repo-PushOrder().-tx commit.")
 	err = tx.Commit(ctx)
 	if err != nil {
 		l.Error("commit err: ", err)
@@ -99,8 +87,6 @@ func (o *OrderRepository) PushOrder(ctx context.Context, l logger.Interface, use
 }
 
 func (o OrderRepository) GetOrders(ctx context.Context, l logger.Interface, user *entity.User) ([]*entity.Order, error) {
-	log.Println("order-repo-GetOrder().")
-
 	rows, err := o.Pool.Query(ctx, `SELECT order_id, number, order_status, accrual, uploaded_at FROM orders
 									WHERE user_id = $1`, user.ID)
 	if err != nil {
@@ -127,14 +113,4 @@ func (o OrderRepository) GetOrders(ctx context.Context, l logger.Interface, user
 	}
 
 	return out, nil
-}
-
-func toModel(o *entity.Order) *Order {
-	return &Order{
-		ID:         o.ID,
-		UserID:     o.UserID,
-		Number:     o.Number,
-		Status:     o.Status,
-		UploadedAt: o.UploadedAt,
-	}
 }

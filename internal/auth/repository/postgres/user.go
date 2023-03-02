@@ -2,12 +2,10 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"github.com/22Fariz22/loyal/internal/auth"
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/22Fariz22/loyal/pkg/postgres"
-	"log"
 )
 
 type User struct {
@@ -47,7 +45,6 @@ func (u *UserRepository) CreateUser(ctx context.Context, l logger.Interface, use
 	}
 
 	// вставляем новый логин и пароль
-	log.Println("auth-db-CreateUser()-user.Login, user.Password: ", user.Login, user.Password)
 	_, err := u.Pool.Exec(ctx, "INSERT INTO users(login, password) values($1, $2);", user.Login, user.Password)
 	if err != nil {
 		l.Error("error in pool.Exec - INSERT:", err)
@@ -69,7 +66,6 @@ func (u *UserRepository) GetUser(ctx context.Context, l logger.Interface, login,
 
 	for row.Next() {
 		var u User
-		fmt.Println(row.Values())
 		err := row.Scan(&u.ID, &u.Login, &u.Password)
 		if err != nil {
 			l.Error("Error in row.Scan().")
@@ -82,10 +78,6 @@ func (u *UserRepository) GetUser(ctx context.Context, l logger.Interface, login,
 		return nil, auth.ErrUserNotFound
 	}
 
-	fmt.Println("db-GetUser()-rows", rows)
-	fmt.Println("db-GetUser()-len(rows)", len(rows))
-	fmt.Println("db-GetUser()-rows[0]", rows[0])
-	fmt.Println("db-GetUser()-rows[1]", rows[1])
 	return toEntity(&rows[1]), nil
 }
 

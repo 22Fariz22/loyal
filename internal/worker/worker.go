@@ -2,11 +2,9 @@ package worker
 
 import (
 	"errors"
-	"fmt"
 	"github.com/22Fariz22/loyal/internal/config"
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/pkg/logger"
-	"log"
 	"sync"
 	"time"
 )
@@ -48,14 +46,12 @@ func CollectNewOrders(uc UseCase, l logger.Interface, cfg *config.Config) []*ent
 		time.Sleep(10 * time.Second)
 
 		newOrders, err := workers.repository.CheckNewOrders(l) //получаем список новых ордеров
-		fmt.Println("newOrders: ", newOrders)
 		if err != nil {
 			l.Info("err in CheckNewOrders(): ", err)
 		}
 
 		workers.AddJob(newOrders)
 	}
-
 }
 
 type NewOrders struct {
@@ -69,39 +65,28 @@ func (w *Pool) AddJob(arr []*entity.Order) error {
 	case w.mainCh <- workerData{
 		orders: arr,
 	}:
-
 		return nil
 	}
 }
 
 // далее этот список передаем воркеру
 func (w *Pool) RunWorkers(count int) {
-	fmt.Println("start RunWorkers()")
 	for i := 0; i < count; i++ {
-		log.Println("start RunWorkers() for... count")
 		w.wg.Add(1)
 		go func() {
-			log.Println("RunWorkers in go func")
 			defer w.wg.Done()
 			for {
 				select {
 				case <-w.shutDown:
-					fmt.Println("RunWorkers-case <-w.shutDown.")
-					//w.l.Info("channels are shutdown.")
 					return
 				case orders, ok := <-w.mainCh:
-					log.Println("RunWorkers-case <-w.mainCh.")
 					if !ok {
-						log.Println("RunWorkers-case <-w.mainCh !ok")
 						return
 					}
-					log.Println("RunWorkers-SendToAccrualBox()")
-					respAccrual, err := w.repository.SendToAccrualBox(w.l, w.cfg, orders.orders)
+					_, err := w.repository.SendToAccrualBox(w.l, w.cfg, orders.orders)
 					if err != nil {
-						log.Println("RunWorkers-SendToAccrualBox err")
 						w.l.Info("err in SendToAccrualBox():", err)
 					}
-					log.Println("RunWorkers-respAccrual: ", respAccrual)
 				}
 			}
 		}()
