@@ -11,5 +11,3 @@ func main() {
 	app := app.NewApp(cfg)
 	app.Run()
 }
-
-//  go run cmd/gophermart/main.go -d="postgres://postgres:55555@127.0.0.1:5432/gophermart" -a="localhost:8080"
