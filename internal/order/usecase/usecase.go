@@ -2,10 +2,11 @@ package usecase
 
 import (
 	"context"
+	"time"
+
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/internal/order"
 	"github.com/22Fariz22/loyal/pkg/logger"
-	"time"
 )
 
 type OrderUseCase struct {

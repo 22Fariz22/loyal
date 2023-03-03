@@ -1,11 +1,11 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/22Fariz22/gophermart/pkg/logger"
 	"github.com/22Fariz22/loyal/internal/auth"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
 )
 
 type Handler struct {
@@ -65,7 +65,6 @@ func (h *Handler) SignUp(c *gin.Context) {
 }
 
 func (h *Handler) SignIn(c *gin.Context) {
-	log.Println("auth-handler-sugnIn().")
 	inp := new(signInput)
 
 	if err := c.BindJSON(inp); err != nil {

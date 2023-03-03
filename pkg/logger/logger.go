@@ -2,10 +2,11 @@ package logger
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 // Interface -.

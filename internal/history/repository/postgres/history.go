@@ -2,12 +2,13 @@ package postgres
 
 import (
 	"context"
+	"log"
+
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/internal/history"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/22Fariz22/loyal/pkg/postgres"
 	"github.com/georgysavva/scany/v2/pgxscan"
-	"log"
 )
 
 type HistoryRepository struct {

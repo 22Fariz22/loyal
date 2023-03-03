@@ -1,13 +1,14 @@
 package http
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/22Fariz22/loyal/internal/auth"
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/internal/history"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"time"
 )
 
 type Handler struct {

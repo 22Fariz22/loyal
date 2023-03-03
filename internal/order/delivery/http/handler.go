@@ -1,16 +1,17 @@
 package http
 
 import (
+	"io"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/22Fariz22/loyal/internal/auth"
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/internal/order"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/theplant/luhn"
-	"io"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type Order struct {

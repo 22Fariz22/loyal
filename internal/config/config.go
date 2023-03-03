@@ -2,7 +2,8 @@ package config
 
 import (
 	"flag"
-	"fmt"
+	"log"
+
 	"github.com/caarlos0/env/v7"
 )
 
@@ -15,14 +16,14 @@ type Config struct {
 func NewConfig() *Config {
 	cfg := Config{}
 
-	flag.StringVar(&cfg.RunAddress, "a", "", "server address") //localhost:8080
+	flag.StringVar(&cfg.RunAddress, "a", "", "server address")
 	flag.StringVar(&cfg.DatabaseURI, "d", "", "database address")
 	flag.StringVar(&cfg.AccrualSystemAddress, "r", "", "accural system")
 
 	flag.Parse()
 
 	if err := env.Parse(&cfg); err != nil {
-		fmt.Printf("%+v\n", err)
+		log.Printf("%+v\n", err)
 	}
 
 	return &cfg

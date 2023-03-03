@@ -2,11 +2,12 @@ package worker
 
 import (
 	"errors"
+	"sync"
+	"time"
+
 	"github.com/22Fariz22/loyal/internal/config"
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/pkg/logger"
-	"sync"
-	"time"
 )
 
 type Pool struct {

@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/sha1"
 	"fmt"
+	"time"
+
 	"github.com/22Fariz22/loyal/internal/auth"
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/dgrijalva/jwt-go/v4"
-	"time"
 )
 
 type AuthClaims struct {

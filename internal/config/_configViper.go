@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	RunAddress           string `env:"RUN_ADDRESS"` //envDefault:":8080"
+	RunAddress           string `env:"RUN_ADDRESS"`
 	DatabaseURI          string `env:"DATABASE_URI"`
 	AccrualSystemAddress string `env:"ACCRUAL_SYSTEM_ADDRESS"`
 }
@@ -15,9 +15,9 @@ type Config struct {
 func NewConfig() *Config {
 	cfg := &Config{}
 
-	flag.StringVar(&cfg.RunAddress, "a", "localhost:8080", "server address")
-	flag.StringVar(&cfg.DatabaseURI, "d", "", "database address")        //postgres://postgres:55555@127.0.0.1:5432/gophermart
-	flag.StringVar(&cfg.AccrualSystemAddress, "r", "", "accrual system") // http://127.0.0.1:8080
+	flag.StringVar(&cfg.RunAddress, "a", "", "server address")
+	flag.StringVar(&cfg.DatabaseURI, "d", "", "database address")
+	flag.StringVar(&cfg.AccrualSystemAddress, "r", "", "accrual system")
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 

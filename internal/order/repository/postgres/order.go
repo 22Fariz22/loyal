@@ -2,12 +2,13 @@ package postgres
 
 import (
 	"context"
+	"strconv"
+	"time"
+
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/internal/order"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/22Fariz22/loyal/pkg/postgres"
-	"strconv"
-	"time"
 )
 
 type OrderRepository struct {

@@ -12,20 +12,20 @@ import (
 	"github.com/22Fariz22/loyal/internal/config"
 
 	"github.com/22Fariz22/loyal/internal/auth"
-	http2 "github.com/22Fariz22/loyal/internal/auth/delivery/http"
-	postgres2 "github.com/22Fariz22/loyal/internal/auth/repository/postgres"
+	authHttp "github.com/22Fariz22/loyal/internal/auth/delivery/http"
+	authRepo "github.com/22Fariz22/loyal/internal/auth/repository/postgres"
 	"github.com/22Fariz22/loyal/internal/auth/usecase"
 	"github.com/22Fariz22/loyal/internal/history"
-	delivery3 "github.com/22Fariz22/loyal/internal/history/delivery/http"
-	postgres4 "github.com/22Fariz22/loyal/internal/history/repository/postgres"
-	usecase3 "github.com/22Fariz22/loyal/internal/history/usecase"
+	historyHttp "github.com/22Fariz22/loyal/internal/history/delivery/http"
+	historyRepo "github.com/22Fariz22/loyal/internal/history/repository/postgres"
+	historyUsecase "github.com/22Fariz22/loyal/internal/history/usecase"
 	"github.com/22Fariz22/loyal/internal/order"
-	delivery2 "github.com/22Fariz22/loyal/internal/order/delivery/http"
-	postgres3 "github.com/22Fariz22/loyal/internal/order/repository/postgres"
-	usecase2 "github.com/22Fariz22/loyal/internal/order/usecase"
+	orderHttp "github.com/22Fariz22/loyal/internal/order/delivery/http"
+	orderRepo "github.com/22Fariz22/loyal/internal/order/repository/postgres"
+	orderUsecase "github.com/22Fariz22/loyal/internal/order/usecase"
 	"github.com/22Fariz22/loyal/internal/worker"
-	postgres5 "github.com/22Fariz22/loyal/internal/worker/repository/postgres"
-	usecase4 "github.com/22Fariz22/loyal/internal/worker/usecase"
+	workerRepo "github.com/22Fariz22/loyal/internal/worker/repository/postgres"
+	workerUsecase "github.com/22Fariz22/loyal/internal/worker/usecase"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/22Fariz22/loyal/pkg/postgres"
 	"github.com/gin-gonic/gin"
@@ -49,10 +49,10 @@ func NewApp(cfg *config.Config) *App {
 
 	//defer db.Close()
 
-	userRepo := postgres2.NewUserRepository(db)
-	orderRepo := postgres3.NewOrderRepository(db)
-	historyRepo := postgres4.NewHistoryRepository(db)
-	workerRepo := postgres5.NewWorkerRepository(db)
+	userRepo := authRepo.NewUserRepository(db)
+	orderRepo := orderRepo.NewOrderRepository(db)
+	historyRepo := historyRepo.NewHistoryRepository(db)
+	workerRepo := workerRepo.NewWorkerRepository(db)
 
 	return &App{
 		cfg: cfg,
@@ -62,9 +62,9 @@ func NewApp(cfg *config.Config) *App {
 			[]byte("signing_key"),
 			time.Duration(86400),
 		),
-		orderUC:   usecase2.NewOrderUseCase(orderRepo),
-		historyUC: usecase3.NewHistoryUseCase(historyRepo),
-		workerUC:  usecase4.NewWorkerUseCase(workerRepo),
+		orderUC:   orderUsecase.NewOrderUseCase(orderRepo),
+		historyUC: historyUsecase.NewHistoryUseCase(historyRepo),
+		workerUC:  workerUsecase.NewWorkerUseCase(workerRepo),
 	}
 }
 
@@ -80,14 +80,14 @@ func (a *App) Run() error {
 
 	// Set up http handlers
 	// SignUp/SignIn endpoints
-	http2.RegisterHTTPEndpoints(router, a.authUC, l)
+	authHttp.RegisterHTTPEndpoints(router, a.authUC, l)
 
 	// API endpoints
-	authMiddleware := http2.NewAuthMiddleware(a.authUC, l)
+	authMiddleware := authHttp.NewAuthMiddleware(a.authUC, l)
 	api := router.Group("/", authMiddleware)
 
-	delivery2.RegisterHTTPEndpointsOrder(api, a.orderUC, l)
-	delivery3.RegisterHTTPEndpoints(api, a.historyUC, l)
+	orderHttp.RegisterHTTPEndpointsOrder(api, a.orderUC, l)
+	historyHttp.RegisterHTTPEndpoints(api, a.historyUC, l)
 
 	// HTTP Server
 	a.httpServer = &http.Server{

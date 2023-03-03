@@ -1,11 +1,12 @@
 package http
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/22Fariz22/loyal/internal/auth"
 	"github.com/22Fariz22/loyal/pkg/logger"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 type AuthMiddleware struct {

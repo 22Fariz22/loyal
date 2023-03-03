@@ -3,10 +3,6 @@ package postgres
 import (
 	"context"
 	"encoding/json"
-	"github.com/22Fariz22/loyal/internal/config"
-	"github.com/22Fariz22/loyal/internal/entity"
-	"github.com/22Fariz22/loyal/pkg/logger"
-	"github.com/22Fariz22/loyal/pkg/postgres"
 	"io"
 	"log"
 	"net/http"
@@ -14,6 +10,11 @@ import (
 	"path"
 	"strconv"
 	"time"
+
+	"github.com/22Fariz22/loyal/internal/config"
+	"github.com/22Fariz22/loyal/internal/entity"
+	"github.com/22Fariz22/loyal/pkg/logger"
+	"github.com/22Fariz22/loyal/pkg/postgres"
 )
 
 type WorkerRepository struct {
