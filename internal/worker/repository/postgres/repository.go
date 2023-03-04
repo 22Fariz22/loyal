@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"path"
@@ -83,14 +82,14 @@ func (w *WorkerRepository) SendToAccrualBox(l logger.Interface, cfg *config.Conf
 		r, err := http.Get(reqURL.String())
 		if err != nil {
 			l.Error("can't do request: ", err)
-			return nil, err //выходим из цикла, если не получился запрос к accrual system
+			return nil, err
 		}
 
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
 			l.Error("Can't read response body: ", err)
-			continue //переходим к следущей итерации
+			continue
 		}
 
 		if r.StatusCode == 204 {
@@ -99,7 +98,7 @@ func (w *WorkerRepository) SendToAccrualBox(l logger.Interface, cfg *config.Conf
 				Status:  "INVALID",
 				Accrual: 0,
 			}, uID); err != nil {
-				return nil, err // определить какой error
+				return nil, err
 			}
 		}
 
@@ -134,7 +133,6 @@ func update(w *WorkerRepository, l logger.Interface, resAcc ResAccrualSystem, uI
 	ctx := context.Background()
 
 	//UPDATE в таблице History и Orders
-	log.Println("worker-repo-updateWithStatus()- start begin tx.")
 	tx, err := w.Pool.Begin(ctx)
 	if err != nil {
 		l.Error("tx err: ", err)

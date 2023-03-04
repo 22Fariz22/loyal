@@ -36,7 +36,7 @@ type workerData struct {
 	orders []*entity.Order
 }
 
-//  функция которая каждые 2 мин забирает из таблицы ордеры со статусом NEW и кладет их в каналы
+//  функция которая каждые 10 секунд забирает из таблицы ордеры со статусом NEW и PROCESSING и кладет их в каналы
 func CollectNewOrders(uc UseCase, l logger.Interface, cfg *config.Config) []*entity.Order {
 	workers := NewWorkerPool(uc, l, cfg)
 

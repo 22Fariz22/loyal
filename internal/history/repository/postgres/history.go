@@ -2,8 +2,6 @@ package postgres
 
 import (
 	"context"
-	"log"
-
 	"github.com/22Fariz22/loyal/internal/entity"
 	"github.com/22Fariz22/loyal/internal/history"
 	"github.com/22Fariz22/loyal/pkg/logger"
@@ -25,7 +23,6 @@ type UserBalance struct {
 }
 
 func (h *HistoryRepository) GetBalance(ctx context.Context, l logger.Interface, user *entity.User) (*entity.User, error) {
-	log.Println("history-repo-GetBalance()-user: ", user)
 	var ub UserBalance
 
 	var u entity.User
